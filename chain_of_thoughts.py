@@ -51,6 +51,18 @@ COIN_EX = [
     _coin_ex("Ryan", True, "Shaunda", True),
 ]
 
+def _letters_chain(words):
+    last = [w[-1].lower() for w in words]
+    s = " ".join(f'The last letter of "{w}" is "{c}".' for w, c in zip(words, last))
+    return f'{s} Concatenating them is "{"".join(last)}". The answer is {"".join(last)}.'
+
+def _letters_ex(name):
+    words = name.split()
+    return (f'Take the last letters of the words in "{name}" and concatenate them.',
+            _letters_chain(words), "".join(w[-1].lower() for w in words))
+
+LETTERS_EX = [_letters_ex(n) for n in ["Elon Musk", "Larry Page", "Sergey Brin", "Bill Gates"]]
+
 # ------------------------------------------------------------------ task generators
 def make_coin(k, rng):
     names = rng.sample(COIN_NAMES, k)
@@ -58,6 +70,13 @@ def make_coin(k, rng):
     parts = [f"{n} flips the coin." if f else f"{n} does not flip the coin." for n, f in zip(names, flips)]
     q = "A coin is heads up. " + " ".join(parts) + " Is the coin still heads up?"
     return q, ("yes" if sum(flips) % 2 == 0 else "no")
+
+def make_letters(k, rng):
+    words = [rng.choice(FIRST if i % 2 == 0 else LAST) for i in range(k)]
+    q = f'Take the last letters of the words in "{" ".join(words)}" and concatenate them.'
+    return q, "".join(w[-1].lower() for w in words)
+
+TASKS = {"coinflip": (make_coin, COIN_EX), "letters": (make_letters, LETTERS_EX)}
 
 
 if __name__ == "__main__":
