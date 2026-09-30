@@ -105,6 +105,32 @@ def make_hf(model_name):
         return tok.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
     return gen
 
+# ------------------------------------------------------------------ evaluation
+def clean(text):
+    text = text.strip()
+    text = re.split(r"\n\s*\n|\nQ:", text)[0]          # cut off when the model starts a new question
+    return text[2:].strip() if text.startswith("A:") else text
+
+def extract(text):
+    m = re.search(r'answer is[:\s]*["\u201c]?([A-Za-z]+)', text)
+    return m.group(1).lower() if m else None
+
+def evaluate(gen, task, k, mode, n, seed, records):
+    make, exemplars = TASKS[task]
+    rng = random.Random(f"{task}-{k}-{seed}")            # same questions for standard and cot (paired)
+    max_new = 16 if mode == "standard" else 160
+    correct = 0
+    for i in range(n):
+        q, gold = make(k, rng)
+        raw = gen(build_prompt(exemplars, q, mode), max_new, mode)
+        text = clean(raw)
+        pred = extract(text)
+        ok = pred == gold
+        correct += ok
+        records.append(dict(task=task, steps=k, mode=mode, question=q, gold=gold, pred=pred, correct=ok, output=text))
+    p = correct / n
+    return p, math.sqrt(p * (1 - p) / n)
+
 
 if __name__ == "__main__":
     main()
