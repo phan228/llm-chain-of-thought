@@ -83,6 +83,21 @@ def build_prompt(exemplars, question, mode):
     blocks.append(f"Q: {question}\nA:")
     return "\n\n".join(blocks)
 
+def make_hf(model_name):
+    import torch
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+    device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
+    tok = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name, torch_dtype=torch.bfloat16 if device == "cuda" else torch.float32).to(device).eval()
+    def gen(prompt, max_new_tokens, mode):
+        inputs = tok(prompt, return_tensors="pt").to(device)
+        with torch.no_grad():
+            out = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
+                                 pad_token_id=tok.eos_token_id)
+        return tok.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+    return gen
+
 
 if __name__ == "__main__":
     main()
