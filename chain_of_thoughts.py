@@ -78,6 +78,11 @@ def make_letters(k, rng):
 
 TASKS = {"coinflip": (make_coin, COIN_EX), "letters": (make_letters, LETTERS_EX)}
 
+def build_prompt(exemplars, question, mode):
+    blocks = [f"Q: {q}\nA: " + (cot if mode == "cot" else f"The answer is {ans}.") for q, cot, ans in exemplars]
+    blocks.append(f"Q: {question}\nA:")
+    return "\n\n".join(blocks)
+
 
 if __name__ == "__main__":
     main()
