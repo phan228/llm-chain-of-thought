@@ -20,6 +20,13 @@ Usage examples:
 """
 import argparse, json, math, random, re, sys, time
 
+# Names used for TEST questions. None of them appear in the exemplars.
+FIRST = ["Amy", "Daniel", "Waldo", "Phoebe", "Osvaldo", "Andree", "Audrie", "Dallas", "Marcus",
+         "Priya", "Tomas", "Yusuf", "Helga", "Lucia", "Nikhil", "Farah", "Gregor", "Imani"]
+LAST = ["Brown", "Schmidt", "Friedman", "Okafor", "Lindqvist", "Moreau", "Tanaka", "Delgado",
+        "Petrov", "Hassan", "Novak", "Fischer", "Costa", "Kowalski", "Bianchi", "Nakamura"]
+COIN_NAMES = FIRST + ["Reuben", "Thandi", "Mikael", "Soraya", "Bertrand", "Ottilie"]
+
 # ------------------------------------------------------------------ exemplars (Tables 22, 23)
 def _coin_chain(flippers):
     k = len(flippers)
