@@ -90,6 +90,24 @@ def build_prompt(exemplars, question, mode):
     blocks.append(f"Q: {question}\nA:")
     return "\n\n".join(blocks)
 
+# ------------------------------------------------------------------ backends: gen(prompt, max_new_tokens, mode) -> str
+def make_mock(seed):
+    """Pipeline test ONLY. Solves questions by rule in 'cot' mode and guesses in 'standard' mode.
+    Its accuracy says nothing about language models."""
+    rng = random.Random(seed)
+    def gen(prompt, max_new_tokens, mode):
+        q = prompt.rsplit("Q: ", 1)[1]
+        if "coin" in q:
+            flippers = re.findall(r"(\w+) flips the coin", q)
+            if mode == "cot":
+                return " " + _coin_chain(flippers)
+            return " The answer is " + rng.choice(["yes", "no"]) + "."
+        words = re.search(r'words in "(.*?)"', q).group(1).split()
+        if mode == "cot":
+            return " " + _letters_chain(words)
+        return " The answer is " + "".join(rng.choice("abcdefghijklmnopqrstuvwxyz") for _ in words) + "."
+    return gen
+
 def make_hf(model_name):
     import torch
     from transformers import AutoTokenizer, AutoModelForCausalLM
