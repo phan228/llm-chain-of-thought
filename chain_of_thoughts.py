@@ -131,6 +131,16 @@ def evaluate(gen, task, k, mode, n, seed, records):
     p = correct / n
     return p, math.sqrt(p * (1 - p) / n)
 
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--task", choices=["coinflip", "letters", "both"], default="both")
+    ap.add_argument("--backend", choices=["mock", "hf", "anthropic"], default="mock")
+    ap.add_argument("--model", default="")
+    ap.add_argument("--n", type=int, default=100, help="test questions per (task, steps, mode)")
+    ap.add_argument("--steps", default="2,3,4", help="2 = in-domain; 3,4 = out-of-domain")
+    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--out", default="cot_results.jsonl")
+    a = ap.parse_args()
 
 if __name__ == "__main__":
     main()
