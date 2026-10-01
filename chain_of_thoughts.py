@@ -176,5 +176,12 @@ def main():
     ap.add_argument("--out", default="cot_results.jsonl")
     a = ap.parse_args()
 
+    if a.backend == "mock":
+        print("!! MOCK backend: this only tests the pipeline. Its numbers are NOT experimental results.\n")
+        gen = make_mock(a.seed)
+    elif a.backend == "hf":
+        gen = make_hf(a.model or sys.exit("--model required for hf"))
+    else:
+        gen = make_anthropic(a.model or "claude-haiku-4-5-20251001")
 if __name__ == "__main__":
     main()
