@@ -108,6 +108,22 @@ def make_mock(seed):
         return " The answer is " + "".join(rng.choice("abcdefghijklmnopqrstuvwxyz") for _ in words) + "."
     return gen
 
+def make_anthropic(model):
+    import anthropic
+    client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY
+    def gen(prompt, max_new_tokens, mode):
+        for attempt in range(5):
+            try:
+                r = client.messages.create(model=model, max_tokens=max_new_tokens, temperature=0.0,
+                                           stop_sequences=["\nQ:"],
+                                           messages=[{"role": "user", "content": prompt}])
+                return "".join(b.text for b in r.content if b.type == "text")
+            except Exception as e:
+                if attempt == 4:
+                    raise
+                time.sleep(2 ** attempt)
+    return gen
+
 def make_hf(model_name):
     import torch
     from transformers import AutoTokenizer, AutoModelForCausalLM
