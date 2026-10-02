@@ -183,5 +183,21 @@ def main():
         gen = make_hf(a.model or sys.exit("--model required for hf"))
     else:
         gen = make_anthropic(a.model or "claude-haiku-4-5-20251001")
+
+    tasks = ["coinflip", "letters"] if a.task == "both" else [a.task]
+    records = []
+    print(f"{'task':<10}{'steps':<8}{'standard':>16}{'chain-of-thought':>20}")
+    for t in tasks:
+        for k in [int(x) for x in a.steps.split(",")]:
+            row = []
+            for mode in ("standard", "cot"):
+                p, se = evaluate(gen, t, k, mode, a.n, a.seed, records)
+                row.append(f"{100*p:5.1f} \u00b1{100*se:4.1f}")
+            tag = "(in)" if k == 2 else "(OOD)"
+            print(f"{t:<10}{str(k)+' '+tag:<8}{row[0]:>16}{row[1]:>20}")
+    with open(a.out, "w") as f:
+        for r in records:
+            f.write(json.dumps(r) + "\n")
+
 if __name__ == "__main__":
     main()
