@@ -14,7 +14,7 @@ Exemplars always use 2 steps (2 people / 2 words); tests use 2 (in-domain) and 3
 Exemplar prompts are taken from the paper's Appendix G, Tables 22-23.
 
 Usage examples:
-  python chain_of_thoughts.py --backend mock                                   # pipeline test, no model needed
+  python chain_of_thoughts.py --backend mock        # for testing
   python chain_of_thoughts.py --backend hf --model Qwen/Qwen2.5-1.5B --n 100
   ANTHROPIC_API_KEY=... python chain_of_thoughts.py --backend anthropic --model claude-haiku-4-5-20251001 --n 50
 """
